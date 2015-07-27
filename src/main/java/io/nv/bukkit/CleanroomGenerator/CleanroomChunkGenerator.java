@@ -48,15 +48,12 @@ public class CleanroomChunkGenerator extends ChunkGenerator
         {
             try
             {
-                int y = 0;
-
                 if ((id.length() > 0) && (id.charAt(0) == '.')) // Is the first character a '.'? If so, skip bedrock generation.
                 {
                     id = id.substring(1); // Skip bedrock then and remove the .
                 } else // Guess not, bedrock at layer0 it is then.
                 {
-                    layers.add(new Layer(Material.BEDROCK, 0, 1));
-                    y++;
+                    layers.add(new Layer(Material.BEDROCK, 1));
                 }
 
                 if (id.length() > 0)
@@ -113,8 +110,7 @@ public class CleanroomChunkGenerator extends ChunkGenerator
                             mat = Material.STONE;
                         }
 
-                        layers.add(new Layer(mat.getNewData(dataValue), y, y+height));
-                        y += height;
+                        layers.add(new Layer(mat.getNewData(dataValue), height));
                     }
                 }
             } catch (Exception e)
@@ -131,15 +127,17 @@ public class CleanroomChunkGenerator extends ChunkGenerator
 
     private void fallback() {
         layers.clear();
-        layers.add(new Layer(Material.BEDROCK, 0, 1));
-        layers.add(new Layer(Material.STONE, 1, 66));
+        layers.add(new Layer(Material.BEDROCK, 1));
+        layers.add(new Layer(Material.STONE, 64));
     }
 
     @Override
     public ChunkData generateChunkData(World world, Random random, int x, int z, BiomeGrid biome) {
         ChunkData result = createChunkData(world);
+        int y = 0;
         for (Layer layer : layers) {
-            result.setRegion(0, layer.getMinHeight(), 0, 16, layer.getMaxHeight(), 16, layer.getMaterial());
+            result.setRegion(0, y, 0, 16, y + layer.getHeight(), 16, layer.getMaterial());
+            y += layer.getHeight();
         }
         return result;
     }
@@ -163,30 +161,24 @@ public class CleanroomChunkGenerator extends ChunkGenerator
     }
 
     private final static class Layer {
-        private MaterialData material;
-        private int minHeight;
-        private int maxHeight;
+        private final MaterialData material;
+        private final int height;
 
-        public Layer (Material material, int minHeight, int maxHeight) {
-            this(material.getNewData((byte)0), minHeight, maxHeight);
+        public Layer (Material material, int height) {
+            this(material.getNewData((byte)0), height);
         }
 
-        public Layer (MaterialData material, int minHeight, int maxHeight) {
+        public Layer (MaterialData material, int height) {
             this.material = material;
-            this.minHeight = minHeight;
-            this.maxHeight = maxHeight;
+            this.height = height;
         }
 
         public MaterialData getMaterial() {
             return material;
         }
 
-        public int getMinHeight() {
-            return minHeight;
-        }
-
-        public int getMaxHeight() {
-            return maxHeight;
+        public int getHeight() {
+            return height;
         }
     }
 }
