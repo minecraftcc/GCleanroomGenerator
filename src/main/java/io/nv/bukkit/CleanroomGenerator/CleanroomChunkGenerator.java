@@ -1,6 +1,6 @@
 /*
  * Cleanroom Generator
- * Copyright (C) 2011-2012 nvx
+ * Copyright (C) 2011-2015 nvx, cybertiger
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -19,7 +19,6 @@
 package io.nv.bukkit.CleanroomGenerator;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 import java.util.logging.Logger;
@@ -27,17 +26,14 @@ import java.util.logging.Logger;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
-import org.bukkit.generator.BlockPopulator;
 import org.bukkit.generator.ChunkGenerator;
 
-import static java.lang.System.arraycopy;
-import static java.lang.System.inheritedChannel;
+import org.bukkit.material.MaterialData;
 
 public class CleanroomChunkGenerator extends ChunkGenerator
 {
     private Logger log = Logger.getLogger("Minecraft");
-    private short[] layer;
-    private byte[] layerDataValues;
+    private List<Layer> layers = new ArrayList();
 
     public CleanroomChunkGenerator()
     {
@@ -52,15 +48,13 @@ public class CleanroomChunkGenerator extends ChunkGenerator
             {
                 int y = 0;
 
-                layer = new short[128]; // Default to 128, will be resized later if required
-                layerDataValues = null;
-
                 if ((id.length() > 0) && (id.charAt(0) == '.')) // Is the first character a '.'? If so, skip bedrock generation.
                 {
                     id = id.substring(1); // Skip bedrock then and remove the .
                 } else // Guess not, bedrock at layer0 it is then.
                 {
-                    layer[y++] = (short)Material.BEDROCK.getId();
+                    layers.add(new Layer(Material.BEDROCK, 0, 1));
+                    y++;
                 }
 
                 if (id.length() > 0)
@@ -76,7 +70,7 @@ public class CleanroomChunkGenerator extends ChunkGenerator
                         {
                             log.warning("[CleanroomGenerator] Invalid height '" + tokens[i] + "'. Using 64 instead.");
                             height = 64;
-                        }
+                        } 
 
                         String materialTokens[] = tokens[i + 1].split("[:]", 2);
                         byte dataValue = 0;
@@ -117,99 +111,38 @@ public class CleanroomChunkGenerator extends ChunkGenerator
                             mat = Material.STONE;
                         }
 
-                        if (y + height > layer.length)
-                        {
-                            short[] newLayer = new short[Math.max(y + height, layer.length * 2)];
-                            arraycopy(layer, 0, newLayer, 0, y);
-                            layer = newLayer;
-                            if (layerDataValues != null)
-                            {
-                                byte[] newLayerDataValues = new byte[Math.max(y + height, layerDataValues.length * 2)];
-                                arraycopy(layerDataValues, 0, newLayerDataValues, 0, y);
-                                layerDataValues = newLayerDataValues;
-                            }
-                        }
-
-                        Arrays.fill(layer, y, y + height, (short)mat.getId());
-                        if (dataValue != 0)
-                        {
-                            if (layerDataValues == null)
-                            {
-                                layerDataValues = new byte[layer.length];
-                            }
-                            Arrays.fill(layerDataValues, y, y + height, dataValue);
-                        }
+                        layers.add(new Layer(mat.getNewData(dataValue), y, y+height));
                         y += height;
                     }
-                }
-
-                // Trim to size
-                if (layer.length > y)
-                {
-                    short[] newLayer = new short[y];
-                    arraycopy(layer, 0, newLayer, 0, y);
-                    layer = newLayer;
-                }
-                if (layerDataValues != null && layerDataValues.length > y)
-                {
-                    byte[] newLayerDataValues = new byte[y];
-                    arraycopy(layerDataValues, 0, newLayerDataValues, 0, y);
-                    layerDataValues = newLayerDataValues;
                 }
             } catch (Exception e)
             {
                 log.severe("[CleanroomGenerator] Error parsing CleanroomGenerator ID '" + id + "'. using defaults '64,1': " + e.toString());
                 e.printStackTrace();
-                layerDataValues = null;
-                layer = new short[65];
-                layer[0] = (short)Material.BEDROCK.getId();
-                Arrays.fill(layer, 1, 65, (short)Material.STONE.getId());
+                fallback();
             }
         } else
         {
-            layerDataValues = null;
-            layer = new short[65];
-            layer[0] = (short)Material.BEDROCK.getId();
-            Arrays.fill(layer, 1, 65, (short)Material.STONE.getId());
+            fallback();
         }
     }
 
-    @Override
-    public short[][] generateExtBlockSections(World world, Random random, int x, int z, BiomeGrid biomes)
-    {
-        int maxHeight = world.getMaxHeight();
-        if (layer.length > maxHeight)
-        {
-            log.warning("[CleanroomGenerator] Error, chunk height " + layer.length + " is greater than the world max height (" + maxHeight + "). Trimming to world max height.");
-            short[] newLayer = new short[maxHeight];
-            arraycopy(layer, 0, newLayer, 0, maxHeight);
-            layer = newLayer;
-        }
-        short[][] result = new short[maxHeight / 16][]; // 16x16x16 chunks
-        for (int i = 0; i < layer.length; i += 16)
-        {
-            result[i >> 4] = new short[4096];
-            for (int y = 0; y < Math.min(16, layer.length - i); y++)
-            {
-                Arrays.fill(result[i >> 4], y * 16 * 16, (y + 1) * 16 * 16, layer[i + y]);
-            }
-        }
+    private void fallback() {
+        layers.clear();
+        layers.add(new Layer(Material.BEDROCK, 0, 1));
+        layers.add(new Layer(Material.STONE, 1, 66));
+    }
 
+    @Override
+    public ChunkData generateChunkData(World world, Random random, int x, int z, BiomeGrid biome) {
+        ChunkData result = createChunkData(world);
+        for (Layer layer : layers) {
+            result.setRegion(0, layer.getMinHeight(), 0, 16, layer.getMaxHeight(), 16, layer.getMaterial());
+        }
         return result;
     }
 
-    @Override
-    public List<BlockPopulator> getDefaultPopulators(World world)
-    {
-        if (layerDataValues != null)
-        {
-            return Arrays.asList((BlockPopulator)new CleanroomBlockPopulator(layerDataValues));
-        } else
-        {
-            // This is the default, but just in case default populators change to stock minecraft populators by default...
-            return new ArrayList<BlockPopulator>();
-        }
-    }
+    
 
     @Override
     public Location getFixedSpawnLocation(World world, Random random)
@@ -225,5 +158,33 @@ public class CleanroomChunkGenerator extends ChunkGenerator
         }
 
         return new Location(world, 0, world.getHighestBlockYAt(0, 0), 0);
+    }
+
+    private final static class Layer {
+        private MaterialData material;
+        private int minHeight;
+        private int maxHeight;
+
+        public Layer (Material material, int minHeight, int maxHeight) {
+            this(material.getNewData((byte)0), minHeight, maxHeight);
+        }
+
+        public Layer (MaterialData material, int minHeight, int maxHeight) {
+            this.material = material;
+            this.minHeight = minHeight;
+            this.maxHeight = maxHeight;
+        }
+
+        public MaterialData getMaterial() {
+            return material;
+        }
+
+        public int getMinHeight() {
+            return minHeight;
+        }
+
+        public int getMaxHeight() {
+            return maxHeight;
+        }
     }
 }
