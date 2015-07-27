@@ -29,11 +29,12 @@ import org.bukkit.World;
 import org.bukkit.generator.ChunkGenerator;
 
 import org.bukkit.material.MaterialData;
+import org.bukkit.plugin.java.JavaPlugin;
 
 public class CleanroomChunkGenerator extends ChunkGenerator
 {
-    private Logger log = Logger.getLogger("Minecraft");
-    private List<Layer> layers = new ArrayList();
+    private final Logger log;
+    private final List<Layer> layers = new ArrayList();
 
     public CleanroomChunkGenerator()
     {
@@ -42,6 +43,7 @@ public class CleanroomChunkGenerator extends ChunkGenerator
 
     public CleanroomChunkGenerator(String id)
     {
+        log = JavaPlugin.getProvidingPlugin(getClass()).getLogger();
         if (id != null)
         {
             try
