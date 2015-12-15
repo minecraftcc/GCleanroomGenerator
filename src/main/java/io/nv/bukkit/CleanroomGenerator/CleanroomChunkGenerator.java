@@ -26,6 +26,7 @@ import java.util.logging.Logger;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.block.Biome;
 import org.bukkit.generator.ChunkGenerator;
 
 import org.bukkit.material.MaterialData;
@@ -135,6 +136,10 @@ public class CleanroomChunkGenerator extends ChunkGenerator
     public ChunkData generateChunkData(World world, Random random, int x, int z, BiomeGrid biome) {
         ChunkData result = createChunkData(world);
         int y = 0;
+        for (int bx = 0; bx < 16; bx++)
+        for (int bz = 0; bz < 16; bz++)
+            biome.setBiome(bx, bz, Biome.PLAINS);
+
         for (Layer layer : layers) {
             result.setRegion(0, y, 0, 16, y + layer.getHeight(), 16, layer.getMaterial());
             y += layer.getHeight();
