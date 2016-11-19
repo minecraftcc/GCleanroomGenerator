@@ -18,25 +18,11 @@
 
 package io.nv.bukkit.CleanroomGenerator;
 
-import java.util.logging.Level;
 import org.bukkit.generator.ChunkGenerator;
-import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class CleanroomGenerator extends JavaPlugin
 {
-    PluginDescriptionFile pluginDescriptionFile;
-
-    public void onEnable()
-    {
-        pluginDescriptionFile = getDescription();
-        getLogger().log(Level.INFO, "[CleanroomGenerator] {0} enabled", pluginDescriptionFile.getFullName());
-    }
-
-    public void onDisable()
-    {
-    }
-
     @Override
     public ChunkGenerator getDefaultWorldGenerator(String worldName, String id)
     {
