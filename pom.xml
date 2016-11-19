@@ -3,10 +3,62 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
+    <!-- Project properties -->
     <groupId>org.cyberiantiger.minecraft</groupId>
     <artifactId>cleanroomgenerator</artifactId>
     <version>1.0-1.10.2</version>
 
+    <description>
+        Cleanroom-style flat world chunk generator
+    </description>
+
+    <!-- Project metadata -->
+    <licenses>
+        <license>
+            <name>AGPLv3</name>
+            <url>https://www.gnu.org/licenses/agpl-3.0.en.html</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <developers>
+        <!-- Original developer of CleanroomGenerator -->
+        <developer>
+            <name>NeoVortex</name>
+            <email>neovortex@gmail.com</email>
+            <url>https://github.com/nvx/</url>
+        </developer>
+        <!-- Developer of CleanroomGenerator fork -->
+        <developer>
+            <name>Antony Riley</name>
+            <email>antony@cyberiantiger.org</email>
+            <url>https://github.com/cybertiger/</url>
+        </developer>
+        <!-- Developer of GCleanroomGenerator fork -->
+        <developer>
+            <name>Roy Curtis</name>
+            <email>roy.adrian.curtis+github@gmail.com</email>
+            <url>https://github.com/RoyCurtis/</url>
+        </developer>
+    </developers>
+
+    <repositories>
+        <!-- For Spigot/Bukkit/CraftBukkit -->
+        <repository>
+            <id>spigot-snapshots</id>
+            <url>https://hub.spigotmc.org/nexus/content/repositories/public/</url>
+        </repository>
+    </repositories>
+
+    <dependencies>
+        <!-- Spigot + Bukkit API -->
+        <dependency>
+            <groupId>org.spigotmc</groupId>
+            <artifactId>spigot-api</artifactId>
+            <version>1.11-R0.1-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.build.number>${user.name}</project.build.number>
@@ -14,6 +66,7 @@
 
     <build>
         <plugins>
+            <!-- Specifies minimum Java version and Unicode for compile and runtime -->
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.3</version>
@@ -24,28 +77,4 @@
             </plugin>
         </plugins>
     </build>
-
-    <repositories>
-        <repository>
-            <id>spigot-repo</id>
-            <url>https://hub.spigotmc.org/nexus/content/groups/public/</url>
-        </repository>
-    </repositories>
-
-    <dependencies>
-        <dependency>
-            <groupId>org.spigotmc</groupId>
-            <artifactId>spigot-api</artifactId>
-            <version>1.10.2-R0.1-SNAPSHOT</version>
-            <scope>provided</scope>
-        </dependency>
-    </dependencies>
-
-    <distributionManagement>
-        <repository>
-            <id>cyberiantiger.repo</id>
-            <name>CyberianTiger Maven Repository</name>
-            <url>dav:http://cyberiantiger.org/maven</url>
-        </repository>
-    </distributionManagement>
 </project>
