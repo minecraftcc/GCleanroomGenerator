@@ -5,8 +5,8 @@
 
     <!-- Project properties -->
     <groupId>org.cyberiantiger.minecraft</groupId>
-    <artifactId>cleanroomgenerator</artifactId>
-    <version>1.0-1.10.2</version>
+    <artifactId>CleanroomGenerator</artifactId>
+    <version>1.0-1.11</version>
 
     <description>
         Cleanroom-style flat world chunk generator
