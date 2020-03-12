@@ -89,21 +89,8 @@ public class CleanroomChunkGenerator extends ChunkGenerator
                         Material mat = Material.matchMaterial(materialTokens[0]);
                         if (mat == null)
                         {
-                            try
-                            {
-                                // Mabe it's an integer?
-
-                                mat = Material.getMaterial(materialTokens[0]);
-                            } catch (Exception e)
-                            {
-                                // Well, I guess it wasn't an integer after all... Awkward...
-                            }
-
-                            if (mat == null)
-                            {
-                                log.warning("[CleanroomGenerator] Invalid Block ID '" + materialTokens[0] + "'. Defaulting to stone.");
-                                mat = Material.STONE;
-                            }
+                            log.warning("[CleanroomGenerator] Invalid Block ID '" + materialTokens[0] + "'. Defaulting to stone.");
+                            mat = Material.STONE;
                         }
 
                         if (!mat.isBlock())
