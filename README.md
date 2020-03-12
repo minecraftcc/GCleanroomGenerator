@@ -7,7 +7,7 @@ Multiverse, or `bukkit.yml`.
 ## Changes
 
 * Generated chunks are all forced to be PLAINS biome
-* Tested to work fully in Spigot and PaperSpigot 1.9, 1.10 and 1.11
+* Built against 1.15, currently untested
 
 ## Usage
 
@@ -25,10 +25,6 @@ For example:
   * At Y 0, generate 1 layer of bedrock, then. . .
   * From Y 1 to Y 63 (or 62 layers), generate dirt, then. . .
   * From Y 64 to Y 64 (or 1 layer), generate grass
-* `CleanroomGenerator:.10,1:5,20,3:1,1,grass` means:
-  * From Y 0 to Y 10 (or 10 layers), generate andesite (1:5), then. . .
-  * From Y 11 to Y 30 (or 20 layers), generate coarse dirt (3:1), then. . .
-  * From Y 31 to Y 31 (or 1 layer), generate grass
 * `CleanroomGenerator:.` means:
   * Generate a void world, excluding even a bedrock layer at Y0
 
