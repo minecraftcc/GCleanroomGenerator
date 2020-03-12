@@ -92,7 +92,8 @@ public class CleanroomChunkGenerator extends ChunkGenerator
                             try
                             {
                                 // Mabe it's an integer?
-                                mat = Material.getMaterial(Integer.parseInt(materialTokens[0]));
+
+                                mat = Material.getMaterial(materialTokens[0]);
                             } catch (Exception e)
                             {
                                 // Well, I guess it wasn't an integer after all... Awkward...
