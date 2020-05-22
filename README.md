@@ -45,7 +45,7 @@ To make a Multiverse world use CleanroomGenerator:
 
 Where:
 
-* `<config>` is the configuration string (e.g. `CleanroomGenerator:62,dirt,1,grass`)
+* `<config>` is the configuration string (e.g. `CleanroomGenerator:62,dirt|1,grass`)
 * `<world name>` is the name of the world (e.g. `world_nether`)
 
 # Building, debugging and debug logging
