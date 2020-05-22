@@ -21,7 +21,7 @@ beginning the configuration string with a `.`.
 
 For example:
 
-* `CleanroomGenerator:62,dirt,1,grass` means:
+* `CleanroomGenerator:62|dirt,1|grass` means:
   * At Y 0, generate 1 layer of bedrock, then. . .
   * From Y 1 to Y 63 (or 62 layers), generate dirt, then. . .
   * From Y 64 to Y 64 (or 1 layer), generate grass
