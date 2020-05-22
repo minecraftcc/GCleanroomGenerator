@@ -29,87 +29,66 @@ import org.bukkit.World;
 import org.bukkit.block.Biome;
 import org.bukkit.generator.ChunkGenerator;
 
-import org.bukkit.material.MaterialData;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class CleanroomChunkGenerator extends ChunkGenerator
 {
     private final Logger log;
-    private final List<Layer> layers = new ArrayList();
+    private final List<Layer> layers = new ArrayList<>();
 
     public CleanroomChunkGenerator()
     {
-        this("64,stone");
+        this("64|stone");
     }
 
     public CleanroomChunkGenerator(String id)
     {
         log = JavaPlugin.getProvidingPlugin(getClass()).getLogger();
-        if (id != null)
-        {
-            try
-            {
-                if ((id.length() > 0) && (id.charAt(0) == '.')) // Is the first character a '.'? If so, skip bedrock generation.
-                {
-                    id = id.substring(1); // Skip bedrock then and remove the .
-                } else // Guess not, bedrock at layer0 it is then.
-                {
+        if (id != null) {
+            try {
+                // Is the first character a '.'? If so, skip bedrock generation.
+                if ((id.length() > 0) && (id.charAt(0) == '.')) {
+                    // Skip bedrock then and remove the .
+                    id = id.substring(1);
+                } else {
+                    // Guess not, bedrock at layer0 it is then.
                     layers.add(new Layer(Material.BEDROCK, 1));
                 }
 
-                if (id.length() > 0)
-                {
-                    String tokens[] = id.split("[,]");
+                if (id.length() > 0) {
+                    String[] args = id.split("[,]");
 
-                    if ((tokens.length % 2) != 0) throw new Exception();
+                    for (int i = 0; i < args.length; i++) {
+                        String[] heightMat = args[i].split("[|]");
 
-                    for (int i = 0; i < tokens.length; i += 2)
-                    {
-                        int height = Integer.parseInt(tokens[i]);
-                        if (height <= 0)
-                        {
-                            log.warning("[CleanroomGenerator] Invalid height '" + tokens[i] + "'. Using 64 instead.");
+                        if ((heightMat.length % 2) != 0) throw new Exception();
+
+                        int height = Integer.parseInt(heightMat[0]);
+                        if (height <= 0) {
+                            log.warning("[CleanroomGenerator] Invalid height '" + args[i] + "'. Defaulting to 64.");
                             height = 64;
-                        } 
-
-                        String materialTokens[] = tokens[i + 1].split("[:]", 2);
-                        byte dataValue = 0;
-                        if (materialTokens.length == 2)
-                        {
-                            try
-                            {
-                                // Lets try to read the data value 
-                                dataValue = Byte.parseByte(materialTokens[1]);
-                            } catch (Exception e)
-                            {
-                                log.warning("[CleanroomGenerator] Invalid Data Value '" + materialTokens[1] + "'. Defaulting to 0.");
-                                dataValue = 0;
-                            }
                         }
-                        Material mat = Material.matchMaterial(materialTokens[0]);
-                        if (mat == null)
-                        {
-                            log.warning("[CleanroomGenerator] Invalid Block ID '" + materialTokens[0] + "'. Defaulting to stone.");
+
+                        Material mat = Material.matchMaterial(heightMat[1]);
+                        if (mat == null) {
+                            log.warning("[CleanroomGenerator] Invalid material '" + heightMat[1] + "'. Defaulting to stone.");
+                            mat = Material.STONE;
+                        }
+                        if (!mat.isBlock()) {
+                            log.warning("[CleanroomGenerator] '" + heightMat[i] + "' is not a block. Defaulting to stone.");
                             mat = Material.STONE;
                         }
 
-                        if (!mat.isBlock())
-                        {
-                            log.warning("[CleanroomGenerator] Error, '" + materialTokens[0] + "' is not a block. Defaulting to stone.");
-                            mat = Material.STONE;
-                        }
-
-                        layers.add(new Layer(mat.getNewData(dataValue), height));
+                        layers.add(new Layer(mat, height));
                     }
                 }
-            } catch (Exception e)
-            {
-                log.severe("[CleanroomGenerator] Error parsing CleanroomGenerator ID '" + id + "'. using defaults '64,1': " + e.toString());
+
+            } catch (Exception e) {
+                log.severe("[CleanroomGenerator] Error parsing CleanroomGenerator ID '" + id + "'. Using '1|bedrock,64|stone' instead: " + e.toString());
                 e.printStackTrace();
                 fallback();
             }
-        } else
-        {
+        } else {
             fallback();
         }
     }
@@ -125,8 +104,9 @@ public class CleanroomChunkGenerator extends ChunkGenerator
         ChunkData result = createChunkData(world);
         int y = 0;
         for (int bx = 0; bx < 16; bx++)
+        for (int by = 0; by < 256; by++)
         for (int bz = 0; bz < 16; bz++)
-            biome.setBiome(bx, bz, Biome.PLAINS);
+            biome.setBiome(bx, by, bz, Biome.PLAINS);
 
         for (Layer layer : layers) {
             result.setRegion(0, y, 0, 16, y + layer.getHeight(), 16, layer.getMaterial());
@@ -154,19 +134,16 @@ public class CleanroomChunkGenerator extends ChunkGenerator
     }
 
     private final static class Layer {
-        private final MaterialData material;
+        private final Material material;
         private final int height;
 
-        public Layer (Material material, int height) {
-            this(material.getNewData((byte)0), height);
-        }
 
-        public Layer (MaterialData material, int height) {
+        public Layer (Material material, int height) {
             this.material = material;
             this.height = height;
         }
 
-        public MaterialData getMaterial() {
+        public Material getMaterial() {
             return material;
         }
 
